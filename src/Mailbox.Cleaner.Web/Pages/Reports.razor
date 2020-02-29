@@ -1,0 +1,49 @@
+﻿@page "/reports"
+
+@using Mailbox.Cleaner.Domain.Data.Repository
+@using Mailbox.Cleaner.Domain.Data.Documents
+@inject IReportRepository _reportRepository
+
+<h1>Reports</h1>
+
+@if (reports == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Unique Domain</th>
+                <th>Date</th>
+                <th>Link</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var report in reports)
+            {
+                <tr>
+                    <td>@report.Id</td>
+                    <td>@report.UniqueDomain.Count</td>
+                    <td>@report.Date</td>
+                    <td>
+                        <NavLink class="nav-link" href="@($"/reports/{report.Id}")">
+                            View
+                        </NavLink>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private IList<ReportDocument> reports;
+
+    protected override async Task OnInitializedAsync()
+    {
+        reports = await _reportRepository.Get();
+    }
+}

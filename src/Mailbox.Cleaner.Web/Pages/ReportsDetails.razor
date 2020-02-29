@@ -1,0 +1,61 @@
+﻿@page "/reports/{Id}"
+
+@using Mailbox.Cleaner.Domain.Data.Repository
+@using Mailbox.Cleaner.Domain.Data.Documents
+@using System.Linq
+@inject NavigationManager _navigationManager
+@inject IReportRepository _reportRepository
+
+<h1>Reports</h1>
+
+@if (Report == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Domain</th>
+                <th>Count</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var domain in Domains)
+            {
+                <tr>
+                    <td>@domain.Key <a href="@($"https://{domain.Key}")" target="_blank">(+)</a></td>
+                    <td>@domain.Value</td>
+                    <td>
+                        <NavLink class="nav-link" href="">
+                            View
+                        </NavLink>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+    private ReportDocument Report;
+    private List<KeyValuePair<string, int>> Domains;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Report = await _reportRepository.Get(Id);
+        if (Report == null)
+        {
+            _navigationManager.NavigateTo("404");
+        }
+        else
+        {
+            Domains = Report.UniqueDomain.ToList();
+            Domains.Sort((first, second) => second.Value.CompareTo(first.Value));
+        }
+    }
+}

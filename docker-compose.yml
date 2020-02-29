@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  web:
+    image: ${DOCKER_REGISTRY-}mailboxcleaner
+    build:
+      context: .
+      dockerfile: src/Mailbox.Cleaner.Web/Dockerfile

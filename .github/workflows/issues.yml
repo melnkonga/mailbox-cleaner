@@ -1,0 +1,17 @@
+name: Issues
+
+on: [pull_request, issues]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  assign:
+    runs-on: ubuntu-latest
+    name: Assign to Project
+    steps:
+    - name: Assignment
+      uses: srggrs/assign-one-project-github-action@1.1.0
+      if: github.event.action == 'opened'
+      with:
+        project: 'https://github.com/Ealenn/mailbox-cleaner/projects/1'
