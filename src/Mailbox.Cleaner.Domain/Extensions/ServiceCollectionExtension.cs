@@ -16,15 +16,10 @@ namespace Mailbox.Cleaner.Domain.Extensions
 
         public static IServiceCollection AddMailboxCleaner(this IServiceCollection serviceCollection, IConfigurationSection configuration)
         {
-            /**
-             * TODO:
-             * @todo Remove PopSettings from DI
-             */
             return serviceCollection
                 .AddAutoMapper(Assembly.GetAssembly(typeof(ServiceCollectionExtension)))
                 .AddOptions()
                 .Configure<MongoSettings>(configuration.GetSection(MongoSectionName))
-                .Configure<PopSettings>(configuration.GetSection(PopSectionName)) 
                 .AddSingleton<IMongoClient>(ConfigureMongoClient(configuration))
                 .AddTransient<IEmailRepository, EmailRepository>()
                 .AddTransient<IImportReportRepository, ImportReportRepository>()
