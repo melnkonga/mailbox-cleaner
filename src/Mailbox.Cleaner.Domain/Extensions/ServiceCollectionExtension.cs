@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using AutoMapper;
+using FluentValidation;
 using Mailbox.Cleaner.Domain.Data.Repository;
 using Mailbox.Cleaner.Domain.Services;
 using Mailbox.Cleaner.Domain.Settings;
@@ -12,20 +13,19 @@ namespace Mailbox.Cleaner.Domain.Extensions
     public static class ServiceCollectionExtension
     {
         private const string MongoSectionName = "Mongo";
-        private const string PopSectionName = "Pop";
 
         public static IServiceCollection AddMailboxCleaner(this IServiceCollection serviceCollection, IConfigurationSection configuration)
         {
             return serviceCollection
                 .AddAutoMapper(Assembly.GetAssembly(typeof(ServiceCollectionExtension)))
+                .AddValidatorsFromAssemblyContaining(typeof(ServiceCollectionExtension))
                 .AddOptions()
                 .Configure<MongoSettings>(configuration.GetSection(MongoSectionName))
-                .AddSingleton<IMongoClient>(ConfigureMongoClient(configuration))
+                .AddSingleton(ConfigureMongoClient(configuration))
                 .AddTransient<IEmailRepository, EmailRepository>()
                 .AddTransient<IImportReportRepository, ImportReportRepository>()
                 .AddTransient<IReportRepository, ReportRepository>()
                 .AddTransient<IEmailService, EmailService>()
-                .AddTransient<IImportService, ImportService>()
                 .AddTransient<IReportService, ReportService>();
         }
 

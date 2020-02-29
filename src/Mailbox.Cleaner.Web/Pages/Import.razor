@@ -1,0 +1,83 @@
+﻿@page "/import"
+
+@using Mailbox.Cleaner.Domain.Models
+@using Mailbox.Cleaner.Domain.Requests
+@using Mailbox.Cleaner.Domain.Requests.RequestsValidations
+@using Mailbox.Cleaner.Domain.Services
+@inject IEmailService _emailService
+
+<h1>Import</h1>
+
+<div>
+    @_progressReport.CurrentProgressAmount
+</div>
+
+@if (!_validSettings)
+{
+    <div class="alert alert-danger" role="alert">
+        Unable to contact the server, check your connection settings
+    </div>
+}
+
+@if (_progressReport.CurrentProgressAmount == 0)
+{
+    <EditForm Model="_importRequest" OnValidSubmit="HandleSubmit">
+        <FluentValidator TValidator="ImportRequestValidation" />
+        <div class="form-group">
+            <ValidationSummary></ValidationSummary>
+        </div>
+
+        <InputText id="server" class="form-control" @bind-Value="_importRequest.Server" />
+        <ValidationMessage For="@(() => _importRequest.Server)" />
+
+        <InputNumber id="port" class="form-control" @bind-Value="_importRequest.Port" />
+        <ValidationMessage For="@(() => _importRequest.Port)" />
+
+        <InputText id="username" class="form-control" @bind-Value="_importRequest.Username" />
+        <ValidationMessage For="@(() => _importRequest.Username)" />
+
+        <InputText id="password" class="form-control" @bind-Value="_importRequest.Password" />
+        <ValidationMessage For="@(() => _importRequest.Password)" />
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">
+                Submit
+            </button>
+        </div>
+    </EditForm>
+}
+else
+{
+    <div class="progress">
+        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow=@_progressReport.CurrentProgressAmount aria-valuemin="0" aria-valuemax=@_progressReport.TotalProgressAmount></div>
+    </div>
+}
+
+@code {
+    private bool _validSettings = true;
+    private IProgress<ProgressReport> _progress;
+    private ProgressReport _progressReport = new ProgressReport();
+    private ImportRequest _importRequest = new ImportRequest();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _progress = new Progress<ProgressReport>(this.Progress);
+    }
+
+    public void Progress(ProgressReport report)
+    {
+        _progressReport = report;
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (_emailService.ValidSettings(_importRequest) || true)
+        {
+            _emailService.Import(_importRequest, _progress);
+        }
+        else
+        {
+            _validSettings = false;
+        }
+    }
+}

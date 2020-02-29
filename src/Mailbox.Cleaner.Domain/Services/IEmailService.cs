@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Mailbox.Cleaner.Domain.Models;
-using Mailbox.Cleaner.Domain.Settings;
+using Mailbox.Cleaner.Domain.Requests;
 
 namespace Mailbox.Cleaner.Domain.Services
 {
     public interface IEmailService
     {
-        /// <exception cref="MailProtocolException"></exception>
-        Task Processing(PopSettings popSettings, Func<MailMessage, Task> process);
+        bool ValidSettings(ImportRequest popSettings);
 
-        bool ValidSettings(PopSettings popSettings);
+        /// <exception cref="MailProtocolException"></exception>
+        Task Import(ImportRequest importRequest, IProgress<ProgressReport> progress);
     }
 }
