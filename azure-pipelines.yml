@@ -1,0 +1,58 @@
+trigger: 
+ branches:
+      include:
+          - master
+
+pool:
+  vmImage: 'windows-2019'
+
+steps:
+
+- task: SonarCloudPrepare@1
+  displayName: Sonar Cloud Prepare
+  inputs:
+    SonarCloud: 'SonarCloud'
+    organization: 'ealenn'
+    scannerMode: 'MSBuild'
+    projectKey: 'mailbox-cleaner'
+    projectName: 'mailbox-cleaner'
+    extraProperties: |
+      sonar.github.repository=ealenn/mailbox-cleaner
+      sonar.language=cs
+      sonar.sourceEncoding=UTF-8
+      sonar.verbose="true"
+
+- task: DotNetCoreCLI@2
+  displayName: .NET Restore
+  inputs:
+    command: 'restore'
+    projects: '*.sln'
+    feedsToUse: 'select'
+    verbosityRestore: 'Normal'
+
+- task: VSBuild@1
+  displayName: VS Build
+  inputs:
+    solution: '*.sln'
+    vsVersion: '16.0'
+    clean: false
+
+- task: VSTest@2
+  displayName: VS Test
+  inputs:
+    testSelector: 'testAssemblies'
+    testAssemblyVer2: |
+      **\**Tests.dll
+      **\*Tests.dll
+      !**\*TestAdapter.dll
+      !**\obj\**
+    searchFolder: '$(System.DefaultWorkingDirectory)'
+    diagnosticsEnabled: true
+
+- task: SonarCloudAnalyze@1
+  displayName: Sonar Cloud Analyze
+
+- task: SonarCloudPublish@1
+  displayName: Sonar Cloud Publish
+  inputs:
+    pollingTimeoutSec: '300'
