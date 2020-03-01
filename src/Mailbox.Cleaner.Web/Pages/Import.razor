@@ -59,17 +59,16 @@ else
     private ProgressReport _progressReport = new ProgressReport();
     private ImportRequest _importRequest = new ImportRequest();
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        _progress = new Progress<ProgressReport>(this.Progress);
+        _progress = new Progress<ProgressReport>(report =>
+        {
+            _progressReport = report;
+            base.StateHasChanged();
+        });
     }
 
-    public void Progress(ProgressReport report)
-    {
-        _progressReport = report;
-    }
-
-    private async Task HandleSubmit()
+    private void HandleSubmit()
     {
         if (_emailService.ValidSettings(_importRequest) || true)
         {

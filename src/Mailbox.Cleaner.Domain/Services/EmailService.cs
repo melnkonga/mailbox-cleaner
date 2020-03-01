@@ -20,7 +20,7 @@ namespace Mailbox.Cleaner.Domain.Services
             _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
-        public async Task Import(ImportRequest importRequest, IProgress<ProgressReport> progress)
+        public Task Import(ImportRequest importRequest, IProgress<ProgressReport> progress)
         {
             //using var client = GetClient(importRequest);
             var elements = 100;//client.GetMessageCount();
@@ -43,6 +43,8 @@ namespace Mailbox.Cleaner.Domain.Services
             //report.CurrentProgressAmount++;
             //progress.Report(report);
             //});
+
+            return Task.CompletedTask;
         }
 
         private async Task Processing(IPop3Client client, int elements, Func<MailMessage, Task> process)
